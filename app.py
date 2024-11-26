@@ -4,6 +4,9 @@ import numpy as np
 import tensorflow as tf
 from flask import Flask, render_template, request, jsonify
 
+# Disable GPU if not needed
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Disable GPU usage
+
 # Set image size
 IMG_SIZE = 224
 
