@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: ProcessQuote
+    name: AuthentixProcess
     env: python
     region: oregon  # Adjust this based on your region
     plan: free  # Choose the plan you want
