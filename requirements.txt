@@ -67,9 +67,9 @@ six
 stack-data
 tensorboard
 tensorboard-data-server
-tensorflow
+tensorflow-cpu==2.18.0  # Ensure CPU-only TensorFlow version
 tensorflow-io-gcs-filesystem
-tensorflow_intel
+tensorflow_intel==2.18.0
 termcolor
 threadpoolctl
 tornado
