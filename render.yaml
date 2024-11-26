@@ -3,24 +3,10 @@ services:
     name: AuthentixProcess
     env: python
     region: oregon  # Adjust this based on your region
-    plan: free  # Choose the plan you want
+    plan: free  # Choose the plan you want (Free or another plan)
     buildCommand: |
-      # Update package lists and install prerequisites
-      sudo apt-get update
-      sudo apt-get install -y curl apt-transport-https
- 
-      # Import the Microsoft GPG key
-      curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
- 
-      # Add Microsoft SQL Server repository for Ubuntu
-      curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
- 
-      # Install the ODBC Driver 17 for SQL Server and development headers
-      sudo apt-get update
-      sudo apt-get install -y mssql-tools unixodbc-dev
- 
       # Install Python dependencies
       pip install -r requirements.txt
-    startCommand: gunicorn app:app  # Replace `app:app` with your Flask app's entry point
+    startCommand: gunicorn app:app  # Replace `app:app` with your Flask app's entry point (e.g., 'flask_app:app')
     healthCheckPath: /
     autoDeploy: true
