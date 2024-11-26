@@ -20,18 +20,22 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 400px;
+            width: 90%;
+            max-width: 400px;
         }
         h1 {
             text-align: center;
             color: #333;
+            font-size: 24px;
         }
         form {
             margin-top: 20px;
             text-align: center;
         }
         input[type="file"] {
-            margin-bottom: 10px;
+            display: block;
+            margin: 10px auto;
+            padding: 5px;
         }
         button {
             background-color: #007bff;
@@ -40,11 +44,29 @@
             padding: 10px 20px;
             cursor: pointer;
             border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         .flash {
             color: red;
             text-align: center;
             margin-top: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px;
+            }
+            button {
+                padding: 8px 16px;
+            }
         }
     </style>
 </head>
@@ -60,9 +82,13 @@
         {% endwith %}
         <form action="/predict" method="POST" enctype="multipart/form-data">
             <input type="file" name="file" accept="image/*" required>
-            <br>
             <button type="submit">Classify QR Code</button>
         </form>
+        {% if result %}
+            <div class="result">
+                {{ result }}
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>
