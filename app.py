@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, jsonify
 # Set image size
 IMG_SIZE = 224
 
-# Load the trained model (ensure the model is available in the directory)
+# Load the trained model once when the app starts (prevent repeated loading)
 model = tf.keras.models.load_model("qr_code_classifier_transfer_learning.h5")
 
 # Create Flask app
