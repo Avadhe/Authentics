@@ -58,3 +58,4 @@ Pygments==2.18.0
 pyparsing==3.2.0
 python-dateutil==2.9.0.post0
 pytz==2024.2
+tensorflow==2.12.0
