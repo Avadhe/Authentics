@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, jsonify
 IMG_SIZE = 224
 
 # Load the trained model
-model = tf.keras.models.load_model("D:/ML_CASE/qr_code_classifier_transfer_learning.h5")
+model = tf.keras.models.load_model("qr_code_classifier_transfer_learning.h5")
 
 # Create Flask app
 app = Flask(__name__)
