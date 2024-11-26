@@ -2,25 +2,14 @@ services:
   - type: web
     name: AuthentixProcess
     env: python
-    region: oregon  # Adjust this based on your region
-    plan: free  # Choose the plan you want, but consider upgrading for more resources
+    region: oregon  # Adjust as per your location
+    plan: free
     buildCommand: |
-      # Update package lists and install prerequisites
-      sudo apt-get update
-      sudo apt-get install -y curl apt-transport-https
-     
-      # Import the Microsoft GPG key
-      curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-     
-      # Add Microsoft SQL Server repository for Ubuntu
-      curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
-     
-      # Install the ODBC Driver 17 for SQL Server and development headers
-      sudo apt-get update
-      sudo apt-get install -y mssql-tools unixodbc-dev
-     
-      # Install Python dependencies
+      apt-get update && apt-get install -y curl apt-transport-https
+      curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+      curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/msprod.list
+      apt-get update && apt-get install -y mssql-tools unixodbc-dev
       pip install -r requirements.txt
-    startCommand: gunicorn app:app  # Make sure to use the correct entry point
+    startCommand: gunicorn app:app --workers=2 --timeout=120
     healthCheckPath: /
     autoDeploy: true
