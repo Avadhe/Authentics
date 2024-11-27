@@ -1,5 +1,11 @@
 flask
+flask-dotenv
+python-dotenv
 gunicorn
 opencv-python
 numpy
 tensorflow-cpu
+pillow
+werkzeug
+flask-bootstrap
+flask-wtf
