@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Classifier</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,84 +13,142 @@
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            min-height: 100vh;
         }
         .container {
-            margin-top: 50px;
             background: #ffffff;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
             width: 90%;
-            max-width: 400px;
+            text-align: center;
         }
         h1 {
-            text-align: center;
-            color: #333;
-            font-size: 24px;
+            color: #007bff;
+            margin-bottom: 20px;
         }
-        form {
-            margin-top: 20px;
-            text-align: center;
+        .welcome {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .logout {
+            text-align: right;
+            margin-bottom: 20px;
         }
         input[type="file"] {
             display: block;
-            margin: 10px auto;
-            padding: 5px;
+            margin: 20px auto;
         }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .flash {
-            color: red;
-            text-align: center;
+        .btn {
             margin-top: 10px;
         }
         .result {
             margin-top: 20px;
             font-weight: bold;
             color: green;
-            text-align: center;
         }
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 20px;
-            }
-            button {
-                padding: 8px 16px;
-            }
+        #camera-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        #video {
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+        #scan-result {
+            font-weight: bold;
+            color: green;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="logout">
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+        </div>
         <h1>QR Code Classifier</h1>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash">
-                    {{ messages[0] }}
-                </div>
-            {% endif %}
-        {% endwith %}
+        <p class="welcome">Welcome, <strong>{{ username }}</strong>!</p>
+        
+        <!-- File Upload Section (Multiple files) -->
         <form action="/predict" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" accept="image/*" required>
-            <button type="submit">Classify QR Code</button>
+            <label for="files" class="form-label">Upload QR Code Image(s) (Multiple):</label>
+            <input type="file" name="files" id="files" accept="image/*" multiple class="form-control">
+            <button type="submit" class="btn btn-primary">Classify QR Codes</button>
         </form>
+
+        <!-- Camera Input Section -->
+        <div id="camera-container">
+            <video id="video" autoplay></video>
+        </div>
+        <button id="scan-button" class="btn btn-success">Scan QR Code from Camera</button>
+        <div id="scan-result" class="result"></div>
+
         {% if result %}
-            <div class="result">
-                {{ result }}
-            </div>
+        <div class="result">
+            <h4>Prediction Results:</h4>
+            <ul>
+                {% for res in result %}
+                    <li>{{ res.filename }}: {{ res.result }}</li>
+                {% endfor %}
+            </ul>
+        </div>
         {% endif %}
     </div>
+
+    <script>
+        let videoElement = document.getElementById('video');
+        let scanResultElement = document.getElementById('scan-result');
+        let scanButton = document.getElementById('scan-button');
+
+        // Access the webcam and start video stream
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function (stream) {
+                videoElement.srcObject = stream;
+            })
+            .catch(function (err) {
+                alert("Error: " + err);
+            });
+
+        // Scan QR Code when the user presses the button
+        scanButton.addEventListener('click', function () {
+            scanResultElement.innerHTML = "Scanning...";
+
+            let canvas = document.createElement('canvas');
+            let ctx = canvas.getContext('2d');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let code = jsQR(imageData.data, canvas.width, canvas.height);
+
+            if (code) {
+                let qrCodeData = code.data;
+                scanResultElement.innerHTML = "QR Code Detected: " + qrCodeData;
+
+                // Send QR code data to server for classification
+                fetch('/scan_qr', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ qr_code: qrCodeData })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    scanResultElement.innerHTML += "<br>Prediction: " + data.result;
+                })
+                .catch(error => {
+                    scanResultElement.innerHTML += "<br>Error: " + error.message;
+                });
+            } else {
+                scanResultElement.innerHTML = "No QR code detected.";
+            }
+        });
+    </script>
 </body>
 </html>
